@@ -18,78 +18,68 @@ function takeFromDBtest(){
 	
 	 $result=$wpdb->get_results("SELECT * FROM mapinfo");
 	
-	 $forRes=" var features = [";
+	 $forRes=" var locations = [";
 	
 	foreach ( $result as $page )
         {
-          $forRes=$forRes."{
-                   position: new google.maps.LatLng(".$page->Len.", ".$page->Lng."),
-                   type: 'info'
-                 },";
-         }
+          $forRes=$forRes."['Bondi Beach', ".$page->Lng.", ".$page->Len."],";
+        }
   
-  
-    $forRes=substr($forRes, 0, -1)."];";
+    $forRes=substr($forRes,0,-1)."];";
+
     $scripts=AddScripts($forRes);
-
-    add_action('wp_enqueue_scripts', 'callback_for_setting_up_scripts');
-
-	$asyncDefender="<script async defersrc='https://maps.googleapis.com/maps/api/js?key=AIzaSyC6v5-2uaq_wusHDktM9ILcqIrlPtnZgEk&callback=initMap'> </script>";
 	
-    return ("<div id='map'></div>".$scripts.$asyncDefender);
+    return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".
+	        "<div id='map' style='width: 500px; height: 400px;'></div> "
+	        .$scripts);
 }
 
 
 
-function callback_for_setting_up_scripts() {
-	wp_enqueue_style( 'styles', 'file:///C:/xampp/htdocs/wordpress/wp-content/plugins/styles.css' );
-}
 
 add_filter('the_content','takeFromDBtest');
 
 
 function AddScripts($param)
 {
-	$str=  " 
-	<script>
+	$str=  "
+	  <script type='text/javascript'>
+    
+	"
+	.
+	$param
+	.
+	"
 	
-	var map;
-      function initMap() {
-        map = new google.maps.Map(
-            document.getElementById('map'),
-            {center: new google.maps.LatLng(-33.91722, 151.23064), zoom: 16});
+	
+	
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 2,
+      center: new google.maps.LatLng(42.445068, 24.573033),
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
 
-        var iconBase =
-            'https://developers.google.com/maps/documentation/javascript/examples/full/images/';
+    var infowindow = new google.maps.InfoWindow();
 
-        var icons = {
-          parking: {
-            icon: iconBase + 'parking_lot_maps.png'
-          },
-          library: {
-            icon: iconBase + 'library_maps.png'
-          },
-          info: {
-            icon: iconBase + 'info-i_maps.png'
-          }
-        };
-         "         
-         .
-         $param
-         .
-         "   
-        // Create markers.
-        for (var i = 0; i < features.length; i++) {
-          var marker = new google.maps.Marker({
-            position: features[i].position,
-            icon: icons[features[i].type].icon,
-            map: map
-          });
-        };
-      }
-	  
-	 </script>
+    var marker, i;
+
+    for (i = 0; i < locations.length; i++) {  
+      marker = new google.maps.Marker({
+        position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+        map: map
+      });
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(locations[i][0]);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+    }
+  </script>
 	  ";
+	  
+	  return $str;
 }
 
 
