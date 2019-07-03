@@ -87,7 +87,7 @@ function GetFromApiAndSaveInDb($param)
 {
 	global $wpdb;
 	
-	$json = file_get_contents('file:///C:/Users/Asus/Desktop/index.html');
+	$json = file_get_contents('HereHaveToBeTheLink');
     $arr=(array)json_decode($json,true);
     
     for ($x = 0; $x < 1; $x++)
