@@ -22,7 +22,7 @@ function takeFromDBtest(){
 	
 	foreach ( $result as $page )
         {
-          $forRes=$forRes."['Bondi Beach', ".$page->Lng.", ".$page->Len."],";
+          $forRes=$forRes."['Bondi Beach', ".(float)$page->Lng.", ".(float)$page->Len."],";
         }
   
     $forRes=substr($forRes,0,-1)."];";
@@ -38,7 +38,7 @@ function takeFromDBtest(){
 
 
 add_filter('the_content','takeFromDBtest');
-
+add_action('activated_plugin','GetFromApiAndSaveInDb');
 
 function AddScripts($param)
 {
@@ -82,6 +82,21 @@ function AddScripts($param)
 	  return $str;
 }
 
+
+function GetFromApiAndSaveInDb($param)
+{
+	global $wpdb;
+	
+	$json = file_get_contents('file:///C:/Users/Asus/Desktop/index.html');
+    $arr=(array)json_decode($json,true);
+    
+    for ($x = 0; $x < 1; $x++)
+	{
+        echo $wpdb->insert('mapinfo',array( 'Lng' => (float)$arr['results'][$x]['geometry']['location']['lng'], 'Len' => (float)($arr['results'][$x]['geometry']['location']['lat']) ));
+    } 
+    
+  
+}
 
 
 
