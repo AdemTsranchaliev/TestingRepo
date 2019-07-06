@@ -22,16 +22,14 @@ function takeFromDBtest(){
 	
 	foreach ( $result as $page )
         {
-          $forRes=$forRes."['Bondi Beach', ".(float)$page->Lng.", ".(float)$page->Len."],";
+          $forRes=$forRes."['Bondi Beach', ".(float)$page->Len.", ".(float)$page->Lng."],";
         }
   
     $forRes=substr($forRes,0,-1)."];";
 
     $scripts=AddScripts($forRes);
 	
-    return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".
-	        "<div id='map' style='width: 500px; height: 400px;'></div> "
-	        .$scripts);
+    return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."<div id='map' style='width: 500px; height: 400px;'></div> ".$scripts);
 }
 
 
@@ -43,19 +41,20 @@ add_action('activated_plugin','GetFromApiAndSaveInDb');
 function AddScripts($param)
 {
 	$str=  "
-	  <script type='text/javascript'>
+
+<script type='text/javascript'>
     
+
 	"
 	.
 	$param
 	.
 	"
 	
-	
-	
-    var map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 2,
-      center: new google.maps.LatLng(42.445068, 24.573033),
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 10,
+      center: new google.maps.LatLng(-33.92, 151.25),
       mapTypeId: google.maps.MapTypeId.ROADMAP
     });
 
@@ -87,16 +86,20 @@ function GetFromApiAndSaveInDb($param)
 {
 	global $wpdb;
 	
-	$json = file_get_contents('HereHaveToBeTheLink');
-    $arr=(array)json_decode($json,true);
-    
-    for ($x = 0; $x < 1; $x++)
-	{
-        echo $wpdb->insert('mapinfo',array( 'Lng' => (float)$arr['results'][$x]['geometry']['location']['lng'], 'Len' => (float)($arr['results'][$x]['geometry']['location']['lat']) ));
-    } 
+
+	
+	
+		$json = file_get_contents('file:///D:/index.html');
+
+          $arr=(array)json_decode($json,true);
+	       for ($y = 0; $y < count($arr['results']); $y++)
+	      {
+          echo  $wpdb->insert('mapinfo',array( 'Name'=>$arr['results'][$y]['name'],'Lng' => (float)$arr['results'][$y]['geometry']['location']['lng'], 'Len' => (float)($arr['results'][$y]['geometry']['location']['lat']) ));
+	      }
+    }
     
   
-}
+
 
 
 
