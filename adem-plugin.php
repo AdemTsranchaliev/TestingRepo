@@ -86,10 +86,11 @@ function GetFromApiAndSaveInDb($param)
 {
 	global $wpdb;
 	
+	$cities=['New York','Washington'];
 
-	for($x = 1; $x <= 875; $x++)
+	for($x = 0; $x < count($cities); $x++)
 	{
-		$json = file_get_contents('file:///D:test123/index'.$x.'.html');
+		$json = file_get_contents('https://maps.googleapis.com/maps/api/place/textsearch/xml?query=restaurants+in+'.$cities[$x].'&key=YOUR_API_KEY');
 
           $arr=(array)json_decode($json,true);
 	       for ($y = 0; $y < count($arr['results']); $y++)
