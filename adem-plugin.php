@@ -87,17 +87,44 @@ function GetFromApiAndSaveInDb($param)
 	global $wpdb;
 	
 
-	
-	
-		$json = file_get_contents('file:///D:/index.html');
+	for($x = 1; $x <= 875; $x++)
+	{
+		$json = file_get_contents('file:///D:test123/index'.$x.'.html');
 
           $arr=(array)json_decode($json,true);
 	       for ($y = 0; $y < count($arr['results']); $y++)
 	      {
-          echo  $wpdb->insert('mapinfo',array( 'Name'=>$arr['results'][$y]['name'],'Lng' => (float)$arr['results'][$y]['geometry']['location']['lng'], 'Len' => (float)($arr['results'][$y]['geometry']['location']['lat']) ));
+			  
+			  $name=$arr['results'][$y]['name'];
+			  $lng=float)$arr['results'][$y]['geometry']['location']['lng']
+			  $lat=(float)($arr['results'][$y]['geometry']['location']['lat'])
+			  
+			  if(CheckIfIsUnique($name,$lng,$lat))
+			  {
+				   $wpdb->insert('mapinfo',array( 'Name'=>$name,'Lng' => $lng, 'Len' =>$lat  ));
+			  }
+			  
+			  
+          echo 
 	      }
+	}
     }
     
+	
+	function bool CheckIfIsUnique($name,$lng,$lat)
+	{
+		global $wpdb;
+		
+		$results = $wpdb->get_results( "SELECT * FROM mapinfo  WHERE Name=".$name." AND lng=".lng." AND len=".$lat );
+		if(is_null($results))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
   
 
 
