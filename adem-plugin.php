@@ -26,7 +26,7 @@ if( isset($_POST['demo']) )
    
            $latAndLng = ($_POST['demo']);
 	       //url find the city/vilage name depens on cordinates 
-           $url = ('https://maps.googleapis.com/maps/api/geocode/json?latlng='.$latAndLng.'&key=AIzaSyBMF1e5ozIkstmijskiXi5M5c-_yIvkQSQ');
+           $url = ('https://maps.googleapis.com/maps/api/geocode/json?latlng='.$latAndLng.'&key=');
      
 	       //use that way to get the information, because if i use get_content... can't escape ampersant
            $ch = curl_init();
@@ -61,7 +61,7 @@ if( isset($_POST['demo']) )
      //check if db have information for restaurants in city/vilage and if there is no info, i insert it
 	 if(count($results)==0)
 	 {
-		   $url = ('https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants+in+'.$place.'&key=AIzaSyBMF1e5ozIkstmijskiXi5M5c-_yIvkQSQ');
+		   $url = ('https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants+in+'.$place.'&key=');
    
            $ch = curl_init();
            curl_setopt($ch, CURLOPT_URL, $url);
