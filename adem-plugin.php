@@ -11,7 +11,7 @@ License:     MIT
 
 defined ('ABSPATH') or die('Hey, what are you doing here? You silly human!');
 
-add_filter('the_content','GetLocationOnLoad');
+
 add_filter('the_content','takeFromDBtest');
 add_action('activated_plugin','GetFromApiAndSaveInDb');
 
@@ -21,93 +21,62 @@ function  takeFromDBtest(){
 	global $wpdb;
 
 	
-if( isset($_POST['demo']) )
+if( isset($_POST['myCountry']) )
 {
-   
-           $latAndLng = ($_POST['demo']);
-	       //url find the city/vilage name depens on cordinates 
-           $url = ('https://maps.googleapis.com/maps/api/geocode/json?latlng='.$latAndLng.'&key=');
-     
-	       //use that way to get the information, because if i use get_content... can't escape ampersant
-           $ch = curl_init();
-           curl_setopt($ch, CURLOPT_URL, $url);
-         
-           curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-           $result = curl_exec($ch);
-           curl_close($ch);
-           		
-           $arr=[];
-           $output=(array) json_decode($result,true);
-		   echo  $output[0];
-		   
-		   //exctract city/vilage name
-           for($j=0;$j<count($output['results'][0]['address_components']);$j++)
-		   {
-               array_push($arr,$output['results'][0]['address_components'][$j]['types'][0].$output['results'][0]['address_components'][$j]['long_name']);
-           }
-		   
-		   
-	//result come as locality: city/vilage, here i take just the city name
-	$place=substr($arr[3],8); 
-
-	//removing whitespaces
-	 $place=preg_replace('/\s+/', '', $place);
-	
+     $place=$_POST['myCountry'];
+       
 	 $temp= 'SELECT * FROM mapinfo WHERE Address LIKE '.'"%'.$place.'%"';
-	echo $temp;
 
-	$results=$wpdb->get_results($temp);
 
-     //check if db have information for restaurants in city/vilage and if there is no info, i insert it
-	 if(count($results)==0)
+	 $results=$wpdb->get_results($temp);
+
+     if(count($results)==0)
 	 {
-		   $url = ('https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants+in+'.$place.'&key=');
-   
-           $ch = curl_init();
-           curl_setopt($ch, CURLOPT_URL, $url);
-          
-           curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-           $resultF = curl_exec($ch);
-           curl_close($ch);		 
-		   //decode json
-		   $newInput=(array) json_decode($resultF,true);
-
-		   InsertIntoDatabase($newInput);
-	   
-           //get new inserted info
-		   $results=$wpdb->get_results($temp);
-
+		$forRes=" var locations = [['', '', '.']];";
+           	
+        $scripts=AddScripts($forRes,'0.0,0.0',1);
+		return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."<div id='map' style='width: 500px; height: 400px;'></div> ".$scripts);
 	 }
-
 	//initialize the array with the data for map, fo JS
 	 $forRes=" var locations = [";
 	
 	foreach ( $results as $page )
         {
-          $forRes=$forRes."['".$page->Name."', ".(float)$page->Lat.", ".(float)$page->Lng."],";
+          $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
         }
-  
-    $forRes=substr($forRes,0,-1)."];";
+ 
+        $forRes=substr($forRes,0,-1)."];";
+
 
 	
-	
-    $scripts=AddScripts($forRes,$latAndLng,13);
+         $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,12);
 	
 
-    echo ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."<div id='map' style='width: 500px; height: 400px;'></div> ".$scripts);
+        return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."<div id='map' style='width: 500px; height: 400px;'></div> ".$scripts);
 }
-        else
-           {
-               //initialize empty arr
-           	$forRes=" var locations = [['', '', '.']];";
-           	
-               $scripts=AddScripts($forRes,'0.0,0.0',1);
-           	
-           	$test1=GetLocationOnLoad();
-           	
-               echo ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."<div id='map' style='width: 500px; height: 400px;'></div> ".$scripts.$test1);
-           	      
-           }
+ else
+    {
+        //initialize empty arr
+        $forRes=" var locations = [['', '', '.']];";
+         	
+         $scripts=AddScripts($forRes,'0.0,0.0',1);
+	
+	     $temp= 'SELECT town FROM mapinfo group by town';
+         $forSend='';
+
+	     $results=$wpdb->get_results($temp);
+
+		foreach ( $results as $page )
+        {
+        $forSend=$forSend."'".$page->town."',";
+        }
+	    $frSend=substr($forSend,0,-1);
+         	
+        $test1=InputTextAutocompleate($forSend);
+         	
+        echo ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."<div id='map' style='width: 500px; height: 400px;'></div> ".$scripts.$test1);
+         	      
+         }
 
 }
 
@@ -215,41 +184,194 @@ function CheckIfIsUnique($name,$lng,$lat)
 	}
 }
    
-function GetLocationOnLoad()
+function InputTextAutocompleate($data)
 {
 	return "	
-	
- <form  name='form123' id='form123' method='post'>
- <input type='hidden' id='demo' name='demo' />
- </form>
-		  
+	<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font: 16px Arial;  
+}
+
+/*the container must be positioned relative:*/
+.autocomplete {
+  position: relative;
+  display: inline-block;
+}
+
+input {
+  border: 1px solid transparent;
+  background-color: #f1f1f1;
+  padding: 10px;
+  font-size: 16px;
+}
+
+input[type=text] {
+  background-color: #f1f1f1;
+  width: 100%;
+}
+
+input[type=submit] {
+  background-color: DodgerBlue;
+  color: #fff;
+  cursor: pointer;
+}
+
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  /*position the autocomplete items to be the same width as the container:*/
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #fff; 
+  border-bottom: 1px solid #d4d4d4; 
+}
+
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+  background-color: #e9e9e9; 
+}
+
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+  background-color: DodgerBlue !important; 
+  color: #ffffff; 
+}
+</style>
+
+<form autocomplete='off' method='post'>
+  <div class='autocomplete' style='width:300px;'>
+    <input id='myCountry' type='text' name='myCountry' placeholder='Sofia...'>
+  </div>
+  <input type='submit'>
+</form>
  
- <script type='text/javascript'>
 
- var x=document.getElementById('demo');
+<script>
+function autocomplete(inp, arr) {
+  /*the autocomplete function takes two arguments,
+  the text field element and an array of possible autocompleted values:*/
+  var currentFocus;
+  /*execute a function when someone writes in the text field:*/
+  inp.addEventListener(\"input\", function(e) {
+      var a, b, i, val = this.value;
+      /*close any already open lists of autocompleted values*/
+      closeAllLists();
+      if (!val) { return false;}
+      currentFocus = -1;
+      /*create a DIV element that will contain the items (values):*/
+      a = document.createElement(\"DIV\");
+      a.setAttribute(\"id\", this.id + \"autocomplete-list\");
+      a.setAttribute(\"class\", \"autocomplete-items\");
+      /*append the DIV element as a child of the autocomplete container:*/
+      this.parentNode.appendChild(a);
+      /*for each item in the array...*/
+      for (i = 0; i < arr.length; i++) {
+        /*check if the item starts with the same letters as the text field value:*/
+        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+          /*create a DIV element for each matching element:*/
+          b = document.createElement(\"DIV\");
+          /*make the matching letters bold:*/
+          b.innerHTML = \"<strong>\" + arr[i].substr(0, val.length) + \"</strong>\";
+          b.innerHTML += arr[i].substr(val.length);
+          /*insert a input field that will hold the current array item's value:*/
+          b.innerHTML += \"<input type='hidden' value='\" + arr[i] + \"'>\";
+          /*execute a function when someone clicks on the item value (DIV element):*/
+          b.addEventListener(\"click\", function(e) {
+              /*insert the value for the autocomplete text field:*/
+              inp.value = this.getElementsByTagName(\"input\")[0].value;
+              /*close the list of autocompleted values,
+              (or any other open lists of autocompleted values:*/
+              closeAllLists();
+          });
+          a.appendChild(b);
+        }
+      }
+  });
+  /*execute a function presses a key on the keyboard:*/
+  inp.addEventListener(\"keydown\", function(e) {
+      var x = document.getElementById(this.id + \"autocomplete-list\");
+      if (x) x = x.getElementsByTagName(\"div\");
+      if (e.keyCode == 40) {
+        /*If the arrow DOWN key is pressed,
+        increase the currentFocus variable:*/
+        currentFocus++;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 38) { //up
+        /*If the arrow UP key is pressed,
+        decrease the currentFocus variable:*/
+        currentFocus--;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 13) {
+        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+        e.preventDefault();
+        if (currentFocus > -1) {
+          /*and simulate a click on the \"active\" item:*/
+          if (x) x[currentFocus].click();
+        }
+      }
+  });
+  function addActive(x) {
+    /*a function to classify an item as \"active\":*/
+    if (!x) return false;
+    /*start by removing the \"active\" class on all items:*/
+    removeActive(x);
+    if (currentFocus >= x.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = (x.length - 1);
+    /*add class \"autocomplete-active\":*/
+    x[currentFocus].classList.add(\"autocomplete-active\");
+  }
+  function removeActive(x) {
+    /*a function to remove the \"active\" class from all autocomplete items:*/
+    for (var i = 0; i < x.length; i++) {
+      x[i].classList.remove(\"autocomplete-active\");
+    }
+  }
+  function closeAllLists(elmnt) {
+    /*close all autocomplete lists in the document,
+    except the one passed as an argument:*/
+    var x = document.getElementsByClassName(\"autocomplete-items\");
+    for (var i = 0; i < x.length; i++) {
+      if (elmnt != x[i] && elmnt != inp) {
+        x[i].parentNode.removeChild(x[i]);
+      }
+    }
+  }
+  /*execute a function when someone clicks in the document:*/
+  document.addEventListener(\"click\", function (e) {
+      closeAllLists(e.target);
+  });
+}
 
- function getLocation()
- {
-	if (navigator.geolocation)
-	{
-		navigator.geolocation.getCurrentPosition(showPosition);
-	}
-	else
-	{
-		x.value='Geolocation is not supported by this browser.';
-	}
- }
- function showPosition(position)
- {
-		 x.value=position.coords.latitude + ',' + position.coords.longitude;  
-	 
-		 document.getElementById('form123').submit();
- }
- 
+/*An array containing all the country names in the world:*/
+var countries = [
 
- getLocation();
+"
+.
+$data
+.
+"
 
- </script>";
+];
+
+/*initiate the autocomplete function on the 'myCountry' element, and pass along the countries array as possible autocomplete values:*/
+autocomplete(document.getElementById('myCountry'), countries);
+</script>
+";
  
  
 }
