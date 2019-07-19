@@ -35,7 +35,7 @@ if( isset($_POST['myCountry']) )
 		$forRes=" var locations = [['', '', '.']];";
            	
         $scripts=AddScripts($forRes,'0.0,0.0',1);
-		return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."<div id='map' style='width: 500px; height: 400px;'></div> ".$scripts);
+		return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."<div id='map' style='width: 500px; height: 400px;'></div> ".$scripts."<div><h3 style='color:red'>Danger!</h3><p style='color:red'> City don't exist in out DB</p></div>");
 	 }
 	//initialize the array with the data for map, fo JS
 	 $forRes=" var locations = [";
