@@ -159,7 +159,7 @@ function InsertIntoDatabase($newInput)
 		$name=(!is_null($newInput['results'][$j]['name'])) ? $newInput['results'][$j]['name'] : '';
 		$address=(!is_null($newInput['results'][$j]['formatted_address'])) ? $newInput['results'][$j]['formatted_address'] : '';	
 
-		if(CheckIfIsUnique($name,$lat,$lng))
+		if(CheckIfIsUnique($placeId))
 		{
 			echo  $wpdb->insert('mapinfo',array( 'Name'=>$name,'Lat' => $lat, 'Lng' =>$lng,'PlaceId' => $placeId, 'PricingLevel' =>$pricingLevel, 'Rating' => $rating, 'Address' => $address  ));
 		}
@@ -168,11 +168,11 @@ function InsertIntoDatabase($newInput)
 }
     
 	
-function CheckIfIsUnique($name,$lng,$lat)
+function CheckIfIsUnique($id)
 {
 	global $wpdb;
 	
-	$results = $wpdb->get_results( "SELECT * FROM mapinfo  WHERE Name=".$name." AND lng=".lng." AND len=".$lat );
+	$results = $wpdb->get_results( "SELECT * FROM mapinfo  WHERE Id="$id );
 	
 	if(is_null($results))
 	{
