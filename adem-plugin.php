@@ -24,7 +24,18 @@ function  takeFromDBtest(){
 if( isset($_POST['myCountry']) )
 {
      $place=$_POST['myCountry'];
-       
+      if(isset($_POST['filter1']))
+	  {
+		  $place=$_POST['filter1'];
+	  }
+	    if(isset($_POST['filter2']))
+	  {
+		   $place=$_POST['filter2'];
+	  }
+	    if(isset($_POST['filter3']))
+	  {
+		   $place=$_POST['filter3'];
+	  }
 	 $temp= 'SELECT * FROM mapinfo WHERE Address LIKE '.'"%'.$place.'%"';
 
 
@@ -39,27 +50,63 @@ if( isset($_POST['myCountry']) )
 	 }
 	//initialize the array with the data for map, fo JS
 	 $forRes=" var locations = [";
-	
-	foreach ( $results as $page )
+
+	if($_POST['filter1'])
+	{
+
+	    foreach ( $results as $page )
         {
+			if($page->Rating>4.7)
+			{
           $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+			}
         }
+	}
+	else if($_POST['filter2'])
+	{
+
+    foreach ( $results as $page )
+        {
+			
+			if($page->Rating>4.6)
+			{
+          $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+			}
+        }
+	}
+		else if($_POST['filter3'])
+	{
+
+    foreach ( $results as $page )
+        {
+			if($page->Rating>4.5)
+			{
+          $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+			}
+        }
+	}
+	else{
+	foreach ( $results as $page )
+    {
+      $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+    }
+	}
  
         $forRes=substr($forRes,0,-1)."];";
 
 
 	
-         $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,12);
-	
-
-        return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."<div id='map' style='width: 500px; height: 400px;'></div> ".$scripts);
+             $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,12,$place);
+	         $filter=AddFilterBut();
+ 
+        return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."<div id='map' style='width: 500px; height: 400px;'></div> ".$filter.$scripts);
 }
  else
     {
         //initialize empty arr
         $forRes=" var locations = [['', '', '.']];";
          	
-         $scripts=AddScripts($forRes,'0.0,0.0',1);
+         $scripts=AddScripts($forRes,'0.0,0.0',1,'');
 	
 	     $temp= 'SELECT town FROM mapinfo group by town';
          $forSend='';
@@ -80,12 +127,86 @@ if( isset($_POST['myCountry']) )
 
 }
 
+function AddFilterBut()
+{
+	$str="<style>
+/* Style The Dropdown Button */
+.dropbtn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
 
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
 
-function AddScripts($param,$latAndLng,$zoom)
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {
+  background-color: #3e8e41;
+}
+</style>
+ <div class='dropdown'>
+  <button class='dropbtn'>ФИЛТЪР</button>
+  <div class='dropdown-content'>
+  <form method='post'>
+    <input type='hidden' value='' name='myCountry' id='myCountry'/>
+   <input type='hidden' value='' name='filter1' id='filter1'/>
+    <a ><input type='submit' value='Рейтинг >3'></a>
+  </form>
+     <form method='post'>
+	     <input type='hidden' value='' name='myCountry' id='myCountry'/>
+  <input type='hidden' value='' id='filter2' name='filter2'/>
+    <a ><input type='submit' value='Рейтинг >2'></a>
+  </form>
+    <form method='post'>
+	    <input type='hidden' value='' name='myCountry' id='myCountry'/>
+  <input type='hidden' value='' id='filter3' name='filter'3'/>
+    <a ><input type='submit' value='Рейтинг >1'></a>
+  </form>
+  </div>
+</div> 
+";
+
+return $str;
+
+}
+
+function AddScripts($param,$latAndLng,$zoom,$place)
 {
 	$str=  "
-
+  <input type='hidden' value='".$place."' id='hidIn123'>
     <script type='text/javascript'>
     
 
@@ -121,6 +242,12 @@ function AddScripts($param,$latAndLng,$zoom)
         }
       })(marker, i));
     }
+	    var val =document.getElementById('hidIn123').value;
+	document.getElementById('filter1').value=val;
+    document.getElementById('filter2').value=val;
+    document.getElementById('filter3').value=val;
+	document.getElementById('myCountry').value=val;
+	
       </script>
 	  ";
 	  
@@ -159,7 +286,7 @@ function InsertIntoDatabase($newInput)
 		$name=(!is_null($newInput['results'][$j]['name'])) ? $newInput['results'][$j]['name'] : '';
 		$address=(!is_null($newInput['results'][$j]['formatted_address'])) ? $newInput['results'][$j]['formatted_address'] : '';	
 
-		if(CheckIfIsUnique($placeId))
+		if(CheckIfIsUnique($name,$lat,$lng))
 		{
 			echo  $wpdb->insert('mapinfo',array( 'Name'=>$name,'Lat' => $lat, 'Lng' =>$lng,'PlaceId' => $placeId, 'PricingLevel' =>$pricingLevel, 'Rating' => $rating, 'Address' => $address  ));
 		}
@@ -168,11 +295,11 @@ function InsertIntoDatabase($newInput)
 }
     
 	
-function CheckIfIsUnique($id)
+function CheckIfIsUnique($name,$lng,$lat)
 {
 	global $wpdb;
 	
-	$results = $wpdb->get_results( "SELECT * FROM mapinfo  WHERE Id="$id );
+	$results = $wpdb->get_results( "SELECT * FROM mapinfo  WHERE Name=".$name." AND lng=".lng." AND len=".$lat );
 	
 	if(is_null($results))
 	{
