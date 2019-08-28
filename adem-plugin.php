@@ -20,6 +20,8 @@ function  takeFromDBtest(){
 	
 	global $wpdb;
 
+	
+
 
 if( isset($_POST['myCountry']) )
 {
@@ -45,7 +47,7 @@ if( isset($_POST['myCountry']) )
 		   $place=$_POST['filter5'];
 	  }
 	  
-	  
+	  $wow='';
 	  
 	 $temp= 'SELECT * FROM mapinfo WHERE town LIKE '.'"%'.$place.'%"';
 
@@ -54,14 +56,14 @@ if( isset($_POST['myCountry']) )
 
      if(count($results)==0&&!$place=='')
 	 {
-		  echo NotFound();
+		  echo NotFound($place);
 		  return;
 	
 	 }
 	 if(count($results)>40&&!$place=='')
 	 {
 		 $results=[];
-		  echo NotFound();
+		  echo NotFound($place);
 		return;
 	 }
 	 $forRes=" var locations = [";
@@ -94,7 +96,7 @@ if( isset($_POST['myCountry']) )
 	 if(count($results)==0)
 	 {		 	  
 
-		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2);
+		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2,"style='background-color: blue; padding: 3%; width:52%,'','','',''");
 	     return;
 	 }
 	 
@@ -102,7 +104,7 @@ if( isset($_POST['myCountry']) )
 	  $forRes='var locations = [';
 	 foreach ( $results as $page )
     {
-      $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+      $forRes=$forRes.'["Name: '.$page->Name.' Lat: '.(float)$page->Lat.' Long: '.(float)$page->Lng.' Rating: '.(float)$page->Rating.'" , '.(float)$page->Lat.', '.(float)$page->Lng.'],';
     }
 	
  
@@ -118,11 +120,11 @@ if( isset($_POST['myCountry']) )
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2);
+        $test1=InputTextAutocompleate($forSend2,'',$lat1,$lng1,$lat2,$lng2);
          
 	 
         $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$lat1,$lat2,$lng1,$lng2);
-	    $filter=AddFilterBut();
+	    $filter=AddFilterBut("style='background-color: blue; padding: 3%; width:52%",'','','','');
      
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
 	 
@@ -134,13 +136,14 @@ if( isset($_POST['myCountry']) )
         {
 			if($page->Rating>=4.9)
 			{
-          $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+        $forRes=$forRes.'["Name: '.$page->Name.' Lat: '.(float)$page->Lat.' Long: '.(float)$page->Lng.' Rating: '.(float)$page->Rating.'" , '.(float)$page->Lat.', '.(float)$page->Lng.'],';
 			}
         }
+		$wow="style='background-color: blue; padding: 3%; width:52%,'','','',''";
 		if(strlen($forRes)<19)
 		{
 	
-			echo NotFoundRating($results,$place);
+			echo NotFoundRating($results,$place,"style='background-color: blue; padding: 3%; width:52%,'','','',''");
 				return;
 			
 		}
@@ -169,14 +172,14 @@ if( isset($_POST['myCountry']) )
 	  if(count($results)==0)
 	 {		 	  
 
-		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2);
+		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2,"'',style='background-color: blue; padding: 3%; width:52%','','',''");
 	     return;
 	 }
 	 
 	  $forRes='var locations = [';
 	 foreach ( $results as $page )
     {
-      $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+      $forRes=$forRes.'["Name: '.$page->Name.' Lat: '.(float)$page->Lat.' Long: '.(float)$page->Lng.' Rating: '.(float)$page->Rating.'" , '.(float)$page->Lat.', '.(float)$page->Lng.'],';
     }
 	
  
@@ -192,11 +195,11 @@ if( isset($_POST['myCountry']) )
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2);
+        $test1=InputTextAutocompleate($forSend2,'',$lat1,$lng1,$lat2,$lng2);
          
 	 
         $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$lat1,$lat2,$lng1,$lng2);
-	    $filter=AddFilterBut();
+	    $filter=AddFilterBut('',"style='background-color: blue; padding: 3%; width:52%'",'','','');
      
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<h3>Вашето търсене: X1:".$lat1." Y1:".$lng1." и X2:".$lat2." Y2: ".$lng2."</h3>"."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
 	 
@@ -208,12 +211,13 @@ if( isset($_POST['myCountry']) )
 			
 			if($page->Rating>=4.5&&$page->Rating<=4.8)
 			{
-          $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+        $forRes=$forRes.'["Name: '.$page->Name.' Lat: '.(float)$page->Lat.' Long: '.(float)$page->Lng.' Rating: '.(float)$page->Rating.'" , '.(float)$page->Lat.', '.(float)$page->Lng.'],';
 			}
         }
+		$wow="'',style='background-color: blue; padding: 3%; width:52%','','',''";
 		if(strlen($forRes)<21)
 		{
-				echo NotFoundRating($results,$place);
+				echo NotFoundRating($results,$place,"'',style='background-color: blue; padding: 3%; width:52%','','',''");
 					return;
 			
 		}
@@ -242,14 +246,15 @@ if( isset($_POST['myCountry']) )
 	  if(count($results)==0)
 	 {		 	  
 
-		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2);
+		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2,"'','',style='background-color: blue; padding: 3%; width:52%','',''");
+	     return;
 	     return;
 	 }
 	 
 	  $forRes='var locations = [';
 	 foreach ( $results as $page )
     {
-      $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+      $forRes=$forRes.'["Name: '.$page->Name.' Lat: '.(float)$page->Lat.' Long: '.(float)$page->Lng.' Rating: '.(float)$page->Rating.'" , '.(float)$page->Lat.', '.(float)$page->Lng.'],';
     }
 	
  
@@ -265,11 +270,11 @@ if( isset($_POST['myCountry']) )
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2);
+        $test1=InputTextAutocompleate($forSend2,'',$lat1,$lng1,$lat2,$lng2);
          
 	 
         $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$lat1,$lat2,$lng1,$lng2);
-	    $filter=AddFilterBut();
+	    $filter=AddFilterBut('','',"style='background-color: blue; padding: 3%; width:52%'",'','');
      
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<h3>Вашето търсене: X1:".$lat1." Y1:".$lng1." и X2:".$lat2." Y2: ".$lng2."</h3>"."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
 	 
@@ -280,13 +285,14 @@ if( isset($_POST['myCountry']) )
         {
 			if($page->Rating>4.2&&$page->Rating<=4.4)
 			{
-          $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+        $forRes=$forRes.'["Name: '.$page->Name.' Lat: '.(float)$page->Lat.' Long: '.(float)$page->Lng.' Rating: '.(float)$page->Rating.'" , '.(float)$page->Lat.', '.(float)$page->Lng.'],';
 			}
         }
+		$wow="'','',style='background-color: blue; padding: 3%; width:52%','',''";
 			if(strlen($forRes)<21)
 		{
 			
-			echo NotFoundRating($results,$place);
+			echo NotFoundRating($results,$place,"'','',style='background-color: blue; padding: 3%; width:52%','',''");
 				return;
 		
 		}
@@ -314,13 +320,13 @@ if( isset($_POST['myCountry']) )
 	  if(count($results)==0)
 	 {		 	  
 
-		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2);
+		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2,"'','','',style='background-color: blue; padding: 3%; width:52%',''");
 	     return;
 	 }
 	  $forRes='var locations = [';
 	 foreach ( $results as $page )
     {
-      $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+      $forRes=$forRes.'["Name: '.$page->Name.' Lat: '.(float)$page->Lat.' Long: '.(float)$page->Lng.' Rating: '.(float)$page->Rating.'" , '.(float)$page->Lat.', '.(float)$page->Lng.'],';
     }
 	
  
@@ -336,11 +342,11 @@ if( isset($_POST['myCountry']) )
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2);
+        $test1=InputTextAutocompleate($forSend2,'',$lat1,$lng1,$lat2,$lng2);
          
 	 
         $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$lat1,$lat2,$lng1,$lng2);
-	    $filter=AddFilterBut();
+	    $filter=AddFilterBut('','','',"style='background-color: blue; padding: 3%; width:52%'",'');
      
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<h3>Вашето търсене: X1:".$lat1." Y1:".$lng1." и X2:".$lat2." Y2: ".$lng2."</h3>"."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
 	 
@@ -354,9 +360,10 @@ if( isset($_POST['myCountry']) )
           $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
 			}
         }
+		$wow="'','','',style='background-color: blue; padding: 3%; width:52%',''";
 			if(strlen($forRes)<21)
 		{
-			echo NotFoundRating($results,$place);
+			echo NotFoundRating($results,$place,"'','','',style='background-color: blue; padding: 3%; width:52%',''");
 				return;
 			
 		}
@@ -385,13 +392,13 @@ if( isset($_POST['myCountry']) )
 	  if(count($results)==0)
 	 {		 	  
 
-		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2);
+		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2,"'','','','',style='background-color: blue; padding: 3%; width:52%'" );
 	     return;
 	 }
 	  $forRes='var locations = [';
 	 foreach ( $results as $page )
     {
-      $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+      $forRes=$forRes.'["Name: '.$page->Name.' Lat: '.(float)$page->Lat.' Long: '.(float)$page->Lng.' Rating: '.(float)$page->Rating.'" , '.(float)$page->Lat.', '.(float)$page->Lng.'],';
     }
 	
  
@@ -407,11 +414,11 @@ if( isset($_POST['myCountry']) )
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2);
+        $test1=InputTextAutocompleate($forSend2,'',$lat1,$lng1,$lat2,$lng2);
          
 	 
         $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$lat1,$lat2,$lng1,$lng2);
-	    $filter=AddFilterBut();
+	    $filter=AddFilterBut('','','','',"style='background-color: blue; padding: 3%; width:52%'");
      
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<h3>Вашето търсене: X1:".$lat1." Y1:".$lng1." и X2:".$lat2." Y2: ".$lng2."</h3>"."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
 	 
@@ -422,12 +429,13 @@ if( isset($_POST['myCountry']) )
         {
 			if($page->Rating<4.0)
 			{
-          $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+        $forRes=$forRes.'["Name: '.$page->Name.' Lat: '.(float)$page->Lat.' Long: '.(float)$page->Lng.' Rating: '.(float)$page->Rating.'" , '.(float)$page->Lat.', '.(float)$page->Lng.'],';
 			}
         }
+		$wow="'','','','',style='background-color: blue; padding: 3%; width:52%'";
 			if(strlen($forRes)<21)
 		{
-				echo NotFoundRating($results,$place);
+				echo NotFoundRating($results,$place,"'','','','',style='background-color: blue; padding: 3%; width:52%'");
 				return;
 			
 		}
@@ -436,7 +444,7 @@ if( isset($_POST['myCountry']) )
 	else{
 	foreach ( $results as $page )
     {
-      $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+      $forRes=$forRes.'["Name: '.$page->Name.' Lat: '.(float)$page->Lat.' Long: '.(float)$page->Lng.' Rating: '.(float)$page->Rating.'" , '.(float)$page->Lat.', '.(float)$page->Lng.'],';
     }
 	}
  
@@ -451,12 +459,12 @@ $temp2= 'SELECT town FROM mapinfo group by town';
         {
         $forSend2=$forSend2."\"".$page->town."\",";
         }
-         	
-        $test1=InputTextAutocompleate($forSend2);
+         	$ww=explode(',',$wow);
+        $test1=InputTextAutocompleate($forSend2,$place,'','','','','');
          
 	
              $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,$place,0,0,0,0);
-	         $filter=AddFilterBut();
+	         $filter=AddFilterBut($ww[0],$ww[1],$ww[2],$ww[3],$ww[4]);
 
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1.'<h3>Вашето търсене:'.$place."</h3><div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
 }
@@ -478,14 +486,14 @@ else if(isset($_POST['lat1'])&&isset($_POST['lat2'])&&isset($_POST['lng1'])&&iss
 	 
     if(count($results)==0)
 	 {
-		  echo NotFoundByCordinates();
+		  echo NotFoundByCordinates($lat1,$lng1,$lat2,$lng2);
 		  return;
 	
 	 }
 	$distanceR=getDistanceBetweenPoints($lat1,$lng1,$lat2,$lng2);
 
 	 if($distanceR>=100)
-	 {  echo TooBigDistance();
+	 {  echo TooBigDistance($lat1,$lng1,$lat2,$lng2);
 		  return;
 		 
 	 }
@@ -493,7 +501,7 @@ else if(isset($_POST['lat1'])&&isset($_POST['lat2'])&&isset($_POST['lng1'])&&iss
 	 $forRes='var locations = [';
 	 foreach ( $results as $page )
     {
-      $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+      $forRes=$forRes.'["Name: '.$page->Name.' Lat: '.(float)$page->Lat.' Long: '.(float)$page->Lng.' Rating: '.(float)$page->Rating.'" , '.(float)$page->Lat.', '.(float)$page->Lng.'],';
     }
 	
  
@@ -509,11 +517,11 @@ else if(isset($_POST['lat1'])&&isset($_POST['lat2'])&&isset($_POST['lng1'])&&iss
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2);
+        $test1=InputTextAutocompleate($forSend2,'',$lat1,$lng1,$lat2,$lng2);
          
 	 
       $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$lat1,$lat2,$lng1,$lng2);
-	  $filter=AddFilterBut();
+	  $filter=AddFilterBut('','','','','');
      
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<h3>Вашето търсене: X1:".$lat1." Y1:".$lng1." и X2:".$lat2." Y2: ".$lng2."</h3>"."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
 	
@@ -535,7 +543,7 @@ else if(isset($_POST['lat1'])&&isset($_POST['lat2'])&&isset($_POST['lng1'])&&iss
         $forSend=$forSend."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend);
+        $test1=InputTextAutocompleate($forSend,'','','','','');
          	
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$scripts);
          	      
@@ -558,7 +566,7 @@ function getDistanceBetweenPoints($lat1, $lon1, $lat2, $lon2) {
     return $kilometers;
 }
 
-function NotFound()
+function NotFound($place)
 {
 	global $wpdb;
 	$forRes=" var locations = [['', '', '.']];";
@@ -572,16 +580,16 @@ function NotFound()
         $forSend=$forSend."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend);
+        $test1=InputTextAutocompleate($forSend,$place,'','','','');
         $scripts=AddScripts($forRes,'0.0,0.0',1,'',0,0,0,0);
 		return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."
 <div class='alert alert-danger'>
-<strong>Внимание!</strong> Градът, който търсите не бе намерен в нашата база данни. Направете <a href='http://109.121.216.41:8022/wordpress/#formSearch'>ново търсене</a>.
+<strong>Внимание!</strong> Градът, ".$place." не бе намерен в нашата база данни. Направете <a href='http://109.121.216.41:8022/wordpress/#formSearch'>ново търсене</a>.
 </div>".$test1."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$scripts);
 
 }
 
-function NotFoundByCordinates()
+function NotFoundByCordinates($i1,$i2,$i3,$i4)
 {
 	global $wpdb;
 	$forRes=" var locations = [['', '', '.']];";
@@ -595,7 +603,7 @@ function NotFoundByCordinates()
         $forSend=$forSend."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend);
+        $test1=InputTextAutocompleate($forSend,'',$i1,$i2,$i3,$i4);
         $scripts=AddScripts($forRes,'0.0,0.0',1,'',0,0,0,0);
 		return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."
 <div class='alert alert-danger'>
@@ -605,7 +613,7 @@ function NotFoundByCordinates()
 }
 
 
-function TooBigDistance()
+function TooBigDistance($i1,$i2,$i3,$i4)
 {
 	global $wpdb;
 	$forRes=" var locations = [['', '', '.']];";
@@ -619,7 +627,7 @@ function TooBigDistance()
         $forSend=$forSend."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend);
+        $test1=InputTextAutocompleate($forSend,'',$i1,$i2,$i3,$i4);
         $scripts=AddScripts($forRes,'0.0,0.0',1,'',0,0,0,0);
 		return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."
 <div class='alert alert-danger'>
@@ -630,16 +638,11 @@ return;
 
 
 
-function NotFoundRating($results,$place)
+function NotFoundRating($results,$place,$plc)
 {
 	global $wpdb;
-	$forRes=" var locations = [";
-		foreach ( $results as $page )
-    {
-      $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
-    }
-	   $forRes=substr($forRes,0,-1)."];";
-
+	$forRes=" var locations = [];";
+	
 $temp= 'SELECT town FROM mapinfo group by town';
          $forSend='';
 
@@ -650,10 +653,12 @@ $temp= 'SELECT town FROM mapinfo group by town';
         $forSend=$forSend."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend);
+        $test1=InputTextAutocompleate($forSend,$place,'','','','');
 	
              $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,$place,0,0,0,0);
-	         $filter=AddFilterBut();
+	         $con= explode(',',$plc);
+	         $filter=AddFilterBut($con[0],$con[1],$con[2],$con[3],$con[4]);
+
 
 		return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."
 <div class='alert alert-danger'>
@@ -664,10 +669,9 @@ return;
 
 
 
-function NotFoundRatingByCordinates($i1,$i2,$i3,$i4)
+function NotFoundRatingByCordinates($i1,$i2,$i3,$i4,$plc)
 {
 	global $wpdb;
-	
 
 	
 	$latMax=max($i1,$i3);
@@ -679,14 +683,8 @@ function NotFoundRatingByCordinates($i1,$i2,$i3,$i4)
 	 $temp= 'SELECT * FROM mapinfo WHERE Lat >= '.$latMin.'AND Lat<='.$latMax.'AND Lng>='.$lngMin.' AND Lng<='.$lngMax;
      $results=$wpdb->get_results($temp);
 	
-	$forRes=" var locations = [";
-		foreach ( $results as $page )
-    {
-      $forRes=$forRes.'["'.$page->Name.'", '.(float)$page->Lat.', '.(float)$page->Lng.'],';
-    }
-	   $forRes=substr($forRes,0,-1)."];";
-	   
-	   
+	$forRes=" var locations = [];";
+
 	   
 $temp2= 'SELECT town FROM mapinfo group by town';
          $forSend2='';
@@ -698,11 +696,12 @@ $temp2= 'SELECT town FROM mapinfo group by town';
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2);
+        $test1=InputTextAutocompleate($forSend2,'',$i1,$i2,$i3,$i4);
          
 	   
   $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$i1,$i3,$i2,$i4);
-	         $filter=AddFilterBut();
+   $con= explode(',',$plc);
+	         $filter=AddFilterBut($con[0],$con[1],$con[2],$con[3],$con[4]);
 
 		echo ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."
 <div class='alert alert-danger'>
@@ -712,36 +711,47 @@ $temp2= 'SELECT town FROM mapinfo group by town';
 
 
 
-function AddFilterBut()
+function AddFilterBut($i1,$i2,$i3,$i4,$i5)
 {
+	
+	
 	$str="
 
   <div style='background-color:white;  margin: 3%;padding:2% 62% 2% 2%' >
   <h4>Филтрирате по рейтинг</h4>
+  <div ".$i1." >
   <form method='post'>
     <input type='hidden' value='' name='myCountry' id='myCountry'/>
    <input type='hidden' value='' name='filter5' id='filter5'/>
       <input type='hidden' value='' name='filter5i' id='filter5i'/>
     <input type='image' height=50px; width=160px; src='https://scontent.fsof1-2.fna.fbcdn.net/v/t1.0-9/69180626_2533980676661868_905102278174703616_o.jpg?_nc_cat=106&_nc_oc=AQkUkTikt9bCqs-2ZZx6xi21k8v1_SPGVN6C-K83nO9-er41kU_6nR3Cs1CInunN_Hg&_nc_ht=scontent.fsof1-2.fna&oh=d27e64132c220da74523c291cc83fa90&oe=5E125175'/>
   </form>
+  </div>
+  <div ".$i2." >
     <form method='post'>
     <input type='hidden' value='' name='myCountry' id='myCountry'/>
    <input type='hidden' value='' name='filter4' id='filter4'/>
       <input type='hidden' value='' name='filter4i' id='filter4i'/>
     <input type='image' height=50px; width=160px; src='https://scontent.fsof1-2.fna.fbcdn.net/v/t1.0-9/68922329_2533980573328545_8365646907267088384_o.jpg?_nc_cat=108&_nc_oc=AQl2R32yLHHi04A4xkut5qPXqZLJ3RjUG3Ivrxx6UxExsvmjnskW87MTXePcFsI25b8&_nc_ht=scontent.fsof1-2.fna&oh=24ddc6b0c4214d79bb3394d983111e2f&oe=5DC9F9AC'/>
   </form>
+  </div>
+   <div ".$i3." >
     <form method='post'>
     <input type='hidden' value='' name='myCountry' id='myCountry'/>
    <input type='hidden' value='' name='filter3' id='filter3'/>
       <input type='hidden' value='' name='filter3i' id='filter3i'/>
     <input type='image' height=50px; width=160px; src='https://scontent.fsof1-2.fna.fbcdn.net/v/t1.0-9/69990232_2533980473328555_2472993700330864640_o.jpg?_nc_cat=104&_nc_oc=AQlml2B5BZCpd70g2dbcXos5n1Meu3mv3IovZ-2kOa7yFdymcj300kHmUIzevwdHmPs&_nc_ht=scontent.fsof1-2.fna&oh=25f1b19a66ae1b8b8e9a727e0ba88e66&oe=5DD34FDB'/>
   </form>
+  </div>
+   <div ".$i4." >
     <form method='post'>
     <input type='hidden' value='' name='myCountry' id='myCountry'/>
    <input type='hidden' value='' name='filter2' id='filter2'/>
       <input type='hidden' value='' name='filter2i' id='filter2i'/>
     <input type='image' height=50px; width=160px; src='https://scontent.fsof1-2.fna.fbcdn.net/v/t1.0-9/69092466_2533980489995220_6411422639964815360_o.jpg?_nc_cat=110&_nc_oc=AQkf9em0QZtRQ7u5-ndHTA0VXMnSFLFO06oO7IDa8Xtusz1897cUcvGYNFddKTsaU-M&_nc_ht=scontent.fsof1-2.fna&oh=102f2598795c7aaf130299d95020d07d&oe=5DCC6F5E'/>
   </form>
+  </div>
+   <div ".$i5." >
     <form method='post'>
     <input type='hidden' value='' name='myCountry' id='myCountry'/>
    <input type='hidden' value='' name='filter1' id='filter1'/>
@@ -749,6 +759,7 @@ function AddFilterBut()
 
     <input type='image' height=50px; width=160px; src='https://scontent.fsof1-1.fna.fbcdn.net/v/t1.0-9/68874291_2533980496661886_2704033172437336064_o.jpg?_nc_cat=111&_nc_oc=AQlX6B5Ca_pQ8apezRD8POKwICZsrw-7z8Lp2w7xJumcpI_xwJRBvj3gMINLHmqwTQo&_nc_ht=scontent.fsof1-1.fna&oh=28139b4141be5118131c362a765e18de&oe=5E063E55'/>
   </form>
+  </div>
 	</div>
 ";
 
@@ -893,7 +904,7 @@ function CheckIfIsUnique($name,$lng,$lat)
 }
    
    
-function InputTextAutocompleate($data)
+function InputTextAutocompleate($data,$valInput,$valInput1,$valInput2,$valInput3,$valInput4)
 {
 	return "	
 
@@ -973,7 +984,18 @@ input[type=submit] {
 }
 }
 </style>
-   
+   <script>
+     function subBut()
+     {
+       if(document.getElementById('myInput').value!='')
+       {
+       document.getElementById('formSearch').submit();
+       }
+       else{
+       document.getElementById('formSearch2').submit();
+       }
+           }
+     </script>
 <div class='Row'>
 <div class='Column' >
 <br/>
@@ -984,40 +1006,38 @@ input[type=submit] {
 <form autocomplete=\"off\" method='post' id='formSearch'>
   <div class=\"autocomplete\" style=\"width:70%; margin:50px 0 1% 15%;\">
   <h3>Локализирай ресторанти по име на град</h3>
-    <input id=\"myInput\" type=\"text\" name=\"myCountry\" placeholder=\"Въведете град: Chicago, Washington...\" style=' height:50px;'>
+    <input id=\"myInput\" type=\"text\" name=\"myCountry\" placeholder=\"Въведете град: Chicago, Washington...\" style=' height:50px;' value='".$valInput."'>
   </div>
- <div>
-  <input type=\"submit\" style=\"width:70%; margin:0 0 0 15%;\" value='Търсене...'>
- </div>
+
 </form>
 </div>
 <div class='Column' style='margin:2000px 0 0 0;'>
 <!--Make sure the form has the autocomplete function switched off:-->
-<form autocomplete=\"off\" method='post' id='formSearch'>
+<form autocomplete=\"off\" method='post' id='formSearch2'>
   <div class=\"autocomplete\" style=\"width:70%; margin:0 0 1% 15%;\" >
   <h3>Локализирай ресторанти по даден с кординати район</h3>
   <div class='Row'>
     <div class='Column'>
 	<h5>Кординати X1</h5>
-    <input id=\"myInput\" type=\"text\"  pattern='[+-]?([0-9]*[.])?[0-9]+' title='Моля използвайте правилния формат. ПРИМЕР: 2.123' name=\"lat1\" style=' height:50px;' required>
+    <input id=\"myInput1\" type=\"text\"  pattern='[+-]?([0-9]*[.])?[0-9]+' title='Моля използвайте правилния формат. ПРИМЕР: 2.123' name=\"lat1\" style=' height:50px;' value='".$valInput1."' required>
 	<h5>Кординати Y1</h5>
-	<input id=\"myInput\" type=\"text\" pattern='[+-]?([0-9]*[.])?[0-9]+' title='Моля използвайте правилния формат. ПРИМЕР: 2.123' name=\"lng1\"  style=' height:50px;'  required>
+	<input id=\"myInput2\" type=\"text\" pattern='[+-]?([0-9]*[.])?[0-9]+' title='Моля използвайте правилния формат. ПРИМЕР: 2.123' name=\"lng1\" value='".$valInput2."' style=' height:50px;'  required>
 	</div>
 	<div class='Column'>
 	<h5>Кординати X2</h5>
-	<input id=\"myInput\" type=\"text\" pattern='[+-]?([0-9]*[.])?[0-9]+' title='Моля използвайте правилния формат. ПРИМЕР: 2.123' name=\"lat2\"  style=' height:50px;' required>
+	<input id=\"myInput3\" type=\"text\" pattern='[+-]?([0-9]*[.])?[0-9]+' title='Моля използвайте правилния формат. ПРИМЕР: 2.123' name=\"lat2\" value='".$valInput3."' style=' height:50px;' required>
 	<h5>Кординати Y2</h5>
-	<input id=\"myInput\" type=\"text\" pattern='[+-]?([0-9]*[.])?[0-9]+' title='Моля използвайте правилния формат. ПРИМЕР: 2.123' name=\"lng2\"  style=' height:50px;'  required>
+	<input id=\"myInput4\" type=\"text\" pattern='[+-]?([0-9]*[.])?[0-9]+' title='Моля използвайте правилния формат. ПРИМЕР: 2.123' name=\"lng2\" value='".$valInput4."' style=' height:50px;'  required>
      </div>
   </div>
   
   </div>
- <div>
-  <input type=\"submit\" style=\"width:70%; margin:0 0 0 15%;\" value='Търсене...'>
- </div>
+
 </form>
 </div>
+
 </div>
+<button style=\"width:84%; margin:0 0 0 8%;\" type='submit' onclick='subBut()'>Търсене</button>
 <script>
 function autocomplete(inp, arr) {
   /*the autocomplete function takes two arguments,
