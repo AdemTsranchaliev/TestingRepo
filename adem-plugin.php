@@ -21,7 +21,66 @@ function  takeFromDBtest(){
 	global $wpdb;
 
 	
+  if( isset($_POST['myCountry1']) )
+  {
+    $place=$_POST['myCountry1'];
+ 
+  $lat1=(float)$_POST['lat11'];
+	$lat2=(float)$_POST['lat22'];
+	$lng1=(float)$_POST['lng11'];
+	$lng2=(float)$_POST['lng22'];
+	
+	$latMax=max($lat1,$lat2);
+	$latMin=min($lat1,$lat2);
+	$lngMax=max($lng1,$lng2);
+	$lngMin=min($lng1,$lng2);
+	
+		 
+  $temp= 'SELECT * FROM mapinfo WHERE town = '.'"'.$place.'"'.'AND Lat >= '.$latMin.' AND Lat<='.$latMax.'AND Lng>='.$lngMin.' AND Lng<='.$lngMax;
 
+$results=$wpdb->get_results($temp);
+
+if(count($results)==0)
+{
+echo NotFound2($place,$lat1,$lng1,$lat2,$lng2 );
+return;
+}
+	$distanceR=getDistanceBetweenPoints($lat1,$lng1,$lat2,$lng2);
+
+	 if($distanceR>=100)
+	 {  echo TooBigDistance($place,$lat1,$lng1,$lat2,$lng2);
+		  return;
+		 
+	 }
+ $forRes='var locations = [';
+	 foreach ( $results as $page )
+    {
+      $forRes=$forRes.'["Name: '.$page->Name.' Lat: '.(float)$page->Lat.' Long: '.(float)$page->Lng.' Rating: '.(float)$page->Rating.'" , '.(float)$page->Lat.', '.(float)$page->Lng.'],';
+    }
+	
+ 
+      $forRes=substr($forRes,0,-1)."];";
+     
+         $temp2= 'SELECT town FROM mapinfo group by town';
+         $forSend2='';
+
+	     $results2=$wpdb->get_results($temp2);
+
+		foreach ( $results2 as $page )
+        {
+        $forSend2=$forSend2."\"".$page->town."\",";
+        }
+         	
+        $test1=InputTextAutocompleate($forSend2,$place,$lat1,$lng1,$lat2,$lng2);
+     
+	 
+      $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,$place,$lat1,$lat2,$lng1,$lng2);
+	  $filter=AddFilterBut('','','','','');
+     
+        return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<h3>Вашето търсене: X1:".$lat1." Y1:".$lng1." и X2:".$lat2." Y2: ".$lng2."</h3>"."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
+	
+
+  }  
 
 if( isset($_POST['myCountry']) )
 {
@@ -78,7 +137,7 @@ if( isset($_POST['myCountry']) )
 		
 			$arr=explode (',',$_POST['filter5i']);
 	
-			$lat1=(float)$arr[0];
+		   	$lat1=(float)$arr[0];
 	        $lat2=(float)$arr[1];
 	        $lng1=(float)$arr[2];
 	        $lng2=(float)$arr[3];
@@ -96,7 +155,7 @@ if( isset($_POST['myCountry']) )
 	 if(count($results)==0)
 	 {		 	  
 
-		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2,"style='background-color: blue; padding: 3%; width:52%,'','','',''");
+		 NotFoundRatingByCordinates($_POST['filter5'],$lat1,$lng1,$lat2,$lng2,"style='background-color: blue; padding: 3%; width:52%,'','','',''");
 	     return;
 	 }
 	 
@@ -120,10 +179,10 @@ if( isset($_POST['myCountry']) )
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2,'',$lat1,$lng1,$lat2,$lng2);
+        $test1=InputTextAutocompleate($forSend2,$_POST['filter5'],$lat1,$lng1,$lat2,$lng2);
          
 	 
-        $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$lat1,$lat2,$lng1,$lng2);
+        $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,$_POST['filter5'],$lat1,$lat2,$lng1,$lng2);
 	    $filter=AddFilterBut("style='background-color: blue; padding: 3%; width:52%",'','','','');
      
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
@@ -172,7 +231,7 @@ if( isset($_POST['myCountry']) )
 	  if(count($results)==0)
 	 {		 	  
 
-		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2,"'',style='background-color: blue; padding: 3%; width:52%','','',''");
+		 NotFoundRatingByCordinates($_POST['filter4'],$lat1,$lng1,$lat2,$lng2,"'',style='background-color: blue; padding: 3%; width:52%','','',''");
 	     return;
 	 }
 	 
@@ -195,10 +254,10 @@ if( isset($_POST['myCountry']) )
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2,'',$lat1,$lng1,$lat2,$lng2);
+        $test1=InputTextAutocompleate($forSend2,$_POST['filter4'],$lat1,$lng1,$lat2,$lng2);
          
 	 
-        $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$lat1,$lat2,$lng1,$lng2);
+        $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,$_POST['filter4'],$lat1,$lat2,$lng1,$lng2);
 	    $filter=AddFilterBut('',"style='background-color: blue; padding: 3%; width:52%'",'','','');
      
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<h3>Вашето търсене: X1:".$lat1." Y1:".$lng1." и X2:".$lat2." Y2: ".$lng2."</h3>"."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
@@ -246,9 +305,9 @@ if( isset($_POST['myCountry']) )
 	  if(count($results)==0)
 	 {		 	  
 
-		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2,"'','',style='background-color: blue; padding: 3%; width:52%','',''");
+		 NotFoundRatingByCordinates($_POST['filter3'],$lat1,$lng1,$lat2,$lng2,"'','',style='background-color: blue; padding: 3%; width:52%','',''");
 	     return;
-	     return;
+
 	 }
 	 
 	  $forRes='var locations = [';
@@ -270,10 +329,10 @@ if( isset($_POST['myCountry']) )
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2,'',$lat1,$lng1,$lat2,$lng2);
+        $test1=InputTextAutocompleate($forSend2,$_POST['filter3'],$lat1,$lng1,$lat2,$lng2);
          
 	 
-        $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$lat1,$lat2,$lng1,$lng2);
+        $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,$_POST['filter3'],$lat1,$lat2,$lng1,$lng2);
 	    $filter=AddFilterBut('','',"style='background-color: blue; padding: 3%; width:52%'",'','');
      
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<h3>Вашето търсене: X1:".$lat1." Y1:".$lng1." и X2:".$lat2." Y2: ".$lng2."</h3>"."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
@@ -320,7 +379,7 @@ if( isset($_POST['myCountry']) )
 	  if(count($results)==0)
 	 {		 	  
 
-		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2,"'','','',style='background-color: blue; padding: 3%; width:52%',''");
+		 NotFoundRatingByCordinates($_POST['filter2'],$lat1,$lng1,$lat2,$lng2,"'','','',style='background-color: blue; padding: 3%; width:52%',''");
 	     return;
 	 }
 	  $forRes='var locations = [';
@@ -342,10 +401,10 @@ if( isset($_POST['myCountry']) )
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2,'',$lat1,$lng1,$lat2,$lng2);
+        $test1=InputTextAutocompleate($forSend2,$_POST['filter2'],$lat1,$lng1,$lat2,$lng2);
          
 	 
-        $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$lat1,$lat2,$lng1,$lng2);
+        $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,$_POST['filter2'],$lat1,$lat2,$lng1,$lng2);
 	    $filter=AddFilterBut('','','',"style='background-color: blue; padding: 3%; width:52%'",'');
      
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<h3>Вашето търсене: X1:".$lat1." Y1:".$lng1." и X2:".$lat2." Y2: ".$lng2."</h3>"."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
@@ -392,7 +451,7 @@ if( isset($_POST['myCountry']) )
 	  if(count($results)==0)
 	 {		 	  
 
-		 NotFoundRatingByCordinates($lat1,$lng1,$lat2,$lng2,"'','','','',style='background-color: blue; padding: 3%; width:52%'" );
+		 NotFoundRatingByCordinates($_POST['filter1'],$lat1,$lng1,$lat2,$lng2,"'','','','',style='background-color: blue; padding: 3%; width:52%'" );
 	     return;
 	 }
 	  $forRes='var locations = [';
@@ -414,10 +473,10 @@ if( isset($_POST['myCountry']) )
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2,'',$lat1,$lng1,$lat2,$lng2);
+        $test1=InputTextAutocompleate($forSend2,$_POST['filter1'],$lat1,$lng1,$lat2,$lng2);
          
 	 
-        $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$lat1,$lat2,$lng1,$lng2);
+        $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,$_POST['filter1'],$lat1,$lat2,$lng1,$lng2);
 	    $filter=AddFilterBut('','','','',"style='background-color: blue; padding: 3%; width:52%'");
      
         return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>".$test1."<h3>Вашето търсене: X1:".$lat1." Y1:".$lng1." и X2:".$lat2." Y2: ".$lng2."</h3>"."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$filter.$scripts);
@@ -493,7 +552,7 @@ else if(isset($_POST['lat1'])&&isset($_POST['lat2'])&&isset($_POST['lng1'])&&iss
 	$distanceR=getDistanceBetweenPoints($lat1,$lng1,$lat2,$lng2);
 
 	 if($distanceR>=100)
-	 {  echo TooBigDistance($lat1,$lng1,$lat2,$lng2);
+	 {  echo TooBigDistance('',$lat1,$lng1,$lat2,$lng2);
 		  return;
 		 
 	 }
@@ -588,6 +647,28 @@ function NotFound($place)
 </div>".$test1."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$scripts);
 
 }
+function NotFound2($place, $l1, $l2, $l3, $l4)
+{
+	global $wpdb;
+	$forRes=" var locations = [['', '', '.']];";
+        $temp= 'SELECT town FROM mapinfo group by town';
+         $forSend='';
+
+	     $results=$wpdb->get_results($temp);
+
+		foreach ( $results as $page )
+        {
+        $forSend=$forSend."\"".$page->town."\",";
+        }
+         	
+        $test1=InputTextAutocompleate($forSend,$place, $l1, $l2, $l3, $l4);
+        $scripts=AddScripts($forRes,'0.0,0.0',1,'',0,0,0,0);
+		return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."
+<div class='alert alert-danger'>
+<strong>Внимание!</strong> В търсения от вас район с кординати X1:".$l1." Y1:".$l2." и X2:".$l3." Y2: ".$l4.", в град ".$place." не бяха намерени ресторанти. Направете <a href='http://109.121.216.41:8022/wordpress/#formSearch'>ново търсене</a>.
+</div>".$test1."<div id='map' style='width: 1110px; height: 500px; position: relative; overflow: hidden; margin: 40px'></div> ".$scripts);
+
+}
 
 function NotFoundByCordinates($i1,$i2,$i3,$i4)
 {
@@ -613,7 +694,7 @@ function NotFoundByCordinates($i1,$i2,$i3,$i4)
 }
 
 
-function TooBigDistance($i1,$i2,$i3,$i4)
+function TooBigDistance($place,$i1,$i2,$i3,$i4)
 {
 	global $wpdb;
 	$forRes=" var locations = [['', '', '.']];";
@@ -627,8 +708,8 @@ function TooBigDistance($i1,$i2,$i3,$i4)
         $forSend=$forSend."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend,'',$i1,$i2,$i3,$i4);
-        $scripts=AddScripts($forRes,'0.0,0.0',1,'',0,0,0,0);
+        $test1=InputTextAutocompleate($forSend,$place,$i1,$i2,$i3,$i4);
+        $scripts=AddScripts($forRes,'0.0,0.0',1,$place,0,0,0,0);
 		return ("  <script src='http://maps.google.com/maps/api/js?sensor=false' type='text/javascript'></script>"."
 <div class='alert alert-danger'>
 <strong>Внимание!</strong> Точките, които сте дали са на разтояние повече от 100км. Лимита между две точки трябва да е до 100 км.. Направете <a href='http://109.121.216.41:8022/wordpress/#formSearch'>ново търсене</a>.
@@ -669,7 +750,7 @@ return;
 
 
 
-function NotFoundRatingByCordinates($i1,$i2,$i3,$i4,$plc)
+function NotFoundRatingByCordinates($place,$i1,$i2,$i3,$i4,$plc)
 {
 	global $wpdb;
 
@@ -696,10 +777,10 @@ $temp2= 'SELECT town FROM mapinfo group by town';
         $forSend2=$forSend2."\"".$page->town."\",";
         }
          	
-        $test1=InputTextAutocompleate($forSend2,'',$i1,$i2,$i3,$i4);
+        $test1=InputTextAutocompleate($forSend2,$place,$i1,$i2,$i3,$i4);
          
 	   
-  $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,'',$i1,$i3,$i2,$i4);
+  $scripts=AddScripts($forRes,(float)$results[0]->Lat.', '.(float)$results[0]->Lng,10,$place,$i1,$i3,$i2,$i4);
    $con= explode(',',$plc);
 	         $filter=AddFilterBut($con[0],$con[1],$con[2],$con[3],$con[4]);
 
@@ -987,9 +1068,19 @@ input[type=submit] {
    <script>
      function subBut()
      {
-       if(document.getElementById('myInput').value!='')
+      if(document.getElementById('myInput').value!=''&&document.getElementById('myInput1').value!=''&&document.getElementById('myInput2').value!=''&&document.getElementById('myInput3').value!=''&&document.getElementById('myInput4').value!='')
+      {
+        document.getElementById('myInput9').value=   document.getElementById('myInput').value
+        document.getElementById('myInput11').value=   document.getElementById('myInput1').value
+        document.getElementById('myInput22').value=   document.getElementById('myInput2').value
+        document.getElementById('myInput33').value=   document.getElementById('myInput3').value
+        document.getElementById('myInput44').value=   document.getElementById('myInput4').value
+        document.getElementById('formSearch222').submit();
+
+      }
+      else if(document.getElementById('myInput').value!='')
        {
-       document.getElementById('formSearch').submit();
+       document.getElementById('formSearch').submit();    
        }
        else{
        document.getElementById('formSearch2').submit();
@@ -1032,6 +1123,14 @@ input[type=submit] {
   </div>
   
   </div>
+
+</form>
+<form autocomplete=\"off\" method='post' id='formSearch222'>
+<input id=\"myInput9\" type=\"hidden\" name=\"myCountry1\">
+    <input id=\"myInput11\" type=\"hidden\" name=\"lat11\">
+	<input id=\"myInput22\" type=\"hidden\" name=\"lng11\">
+	<input id=\"myInput33\" type=\"hidden\" name=\"lat22\">
+	<input id=\"myInput44\" type=\"hidden\" name=\"lng22\">
 
 </form>
 </div>
