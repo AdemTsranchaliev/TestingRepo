@@ -45,7 +45,7 @@ return $str;
 
 echo "<a href='http://109.121.216.41:8022/settlemets/index.html'><button>Към търсачка</button></a>";
 
-  $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=34523452");
+  $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=");
 
 
    $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
@@ -194,7 +194,7 @@ echo "<a href='http://109.121.216.41:8022/settlemets/index.html'><button>Към 
          
       }
   
-       pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=34523452");
+       pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=");
       if ($query1!='INSERT INTO allsettlements(ekatte,altitude,kind,category,municipality_id,name) VALUES') {
         $query1=substr($query1,0,-1);
         pg_query($query1);
