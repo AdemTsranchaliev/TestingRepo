@@ -1,7 +1,7 @@
 <?php
   function readFromDb($query)
   {
-      $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=34523452");
+      $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=");
 
   if(!$db)
   {
