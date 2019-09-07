@@ -1,7 +1,7 @@
 <?php
   function readFromDb($query)
   {
-      $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=34523452");
+      $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=");
 
   if(!$db)
   {
@@ -42,7 +42,7 @@ if(isset($_POST['search']))
 
       if ($f1==0) {
         $arr=[];
-        $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=34523452");
+        $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=");
         $temp2=mb_strtolower($res);
         $result = pg_query("SELECT allsettlements.name,municipalities.name,regions.name from allsettlements join municipalities on (allsettlements.municipality_id=municipalities.id) join regions on (municipalities.region_id=regions.id) WHERE LOWER(allsettlements.name) LIKE '".$temp2."%'");
       if (!$result) {
