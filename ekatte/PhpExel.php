@@ -31,10 +31,6 @@ tr:nth-child(even) {
 function htmlError($ser)
 {
     $str="
-<!DOCTYPE html>
-
-
-
 <table>
   <tr>
     <th>".$ser." не беше намерено!</th>
@@ -47,7 +43,9 @@ return $str;
 }
 
 
-echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към търсачка</button></a>";
+echo "<a href='http://109.121.216.41:8022/settlemets/index.html'><button>Към търсачка</button></a>";
+
+  $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=34523452");
 
 
    $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
@@ -62,8 +60,7 @@ echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към тъ�
    $query1 = 'INSERT INTO regions(name,id) VALUES';
    for ($i=1; $i < count($arr1); $i++) { 
 
-    $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password="");
-
+  
     if(!$db)
     {
         echo "Изникна грешка по време на свързването с базата, моля опитайте отново";
@@ -105,7 +102,6 @@ echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към тъ�
      for ($i=1; $i < count($arr1); $i++) { 
 
 
-      $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=");
 
       if(!$db)
       {
@@ -127,9 +123,6 @@ echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към тъ�
         
             $query1=$query1."('".$arr1[$i][2]."','".$arr1[$i][0]."','".substr($arr1 [$i][0],0,3)."',".$arr1[$i][3]."),"; 
            }  
-
-
-  
        }
 
 
@@ -156,8 +149,7 @@ echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към тъ�
      $res=FALSE;
    for ($i=2; $i < count($arr1); $i++) { 
 
-        $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=");
-
+      
         if(!$db)
         {
             echo "Изникна грешка по време на свързването с базата, моля опитайте отново";
@@ -202,7 +194,7 @@ echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към тъ�
          
       }
   
-       pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password="");
+       pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=34523452");
       if ($query1!='INSERT INTO allsettlements(ekatte,altitude,kind,category,municipality_id,name) VALUES') {
         $query1=substr($query1,0,-1);
         pg_query($query1);
@@ -210,7 +202,6 @@ echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към тъ�
       $myfile = fopen("allsettlements.txt", "w") or die("Unable to open file!");
 
 
-  $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password="");
 
   if(!$db)
   {
@@ -228,12 +219,31 @@ echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към тъ�
    $txt=substr($txt,0,-1).'];';
    $myfile = fopen("allsettlements.txt", "w") or die("Unable to open file!");
    fwrite($myfile, $txt);
+   fclose($myfile);
 
-fclose($myfile);
+   $result = pg_query("SELECT COUNT(*) FROM regions");
+   $countRegions=0;
+   while ($row = pg_fetch_row($result)) {
+    $countRegions=$row[0];
+ }
+ $result = pg_query("SELECT COUNT(*) FROM municipalities");
+ $countMunicipalities=0;
+ while ($row = pg_fetch_row($result)) {
+  $countMunicipalities=$row[0];
+}
+$result = pg_query("SELECT COUNT(*) FROM allsettlements");
+$countSettlements=0;
+while ($row = pg_fetch_row($result)) {
+ $countSettlements=$row[0];
+}
+
+
+
+
 
 $myfile = fopen("allsettlements.txt", "r+") or die("Unable to open file!");
 $myfile1 = fopen("index.html", "r+") or die("Unable to open file!");
-$text=fread($myfile,filesize("allsettlements.txt"));
+$text=fread($myfile,filesize("allsettlements.txt")).'var countsOfDb =["'.$countRegions.'","'.$countMunicipalities.'","'.$countSettlements.'"]; document.getElementById("cnt1").innerHTML=countsOfDb[0];document.getElementById("cnt2").innerHTML=countsOfDb[1];document.getElementById("cnt3").innerHTML=countsOfDb[2];';
 $text1=fread($myfile1,filesize("index.html"));
 $num= strrpos($text1, 'var countries = [', 0);
 $num2=strrpos($text1, '];', $num);
