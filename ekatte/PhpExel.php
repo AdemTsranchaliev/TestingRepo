@@ -62,7 +62,7 @@ echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към тъ�
    $query1 = 'INSERT INTO regions(name,id) VALUES';
    for ($i=1; $i < count($arr1); $i++) { 
 
-    $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=34523452");
+    $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password="");
 
     if(!$db)
     {
@@ -105,7 +105,7 @@ echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към тъ�
      for ($i=1; $i < count($arr1); $i++) { 
 
 
-      $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=34523452");
+      $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=");
 
       if(!$db)
       {
@@ -156,7 +156,7 @@ echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към тъ�
      $res=FALSE;
    for ($i=2; $i < count($arr1); $i++) { 
 
-        $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=34523452");
+        $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=");
 
         if(!$db)
         {
@@ -202,7 +202,7 @@ echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към тъ�
          
       }
   
-       pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=34523452");
+       pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password="");
       if ($query1!='INSERT INTO allsettlements(ekatte,altitude,kind,category,municipality_id,name) VALUES') {
         $query1=substr($query1,0,-1);
         pg_query($query1);
@@ -210,7 +210,7 @@ echo "<a href='http://localhost:8022/settlemets/index.html'><button>Към тъ�
       $myfile = fopen("allsettlements.txt", "w") or die("Unable to open file!");
 
 
-  $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password=34523452");
+  $db = pg_connect("host=localhost port=5433 dbname=Bulgaria2 user=postgres password="");
 
   if(!$db)
   {
