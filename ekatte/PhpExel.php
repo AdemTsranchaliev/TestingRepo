@@ -258,4 +258,6 @@ $res= str_replace($lat,$text,$text1);
  fwrite($myfile22,$res);
  fclose($myfile22);
 
+ exec("toFile.php");
+
 
